@@ -1,7 +1,8 @@
+from multiprocessing import context
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
-
+from .models import Product
 
 # Create your views here.
 
@@ -9,13 +10,22 @@ from django.contrib.auth.decorators import login_required
 def index(request):
     return render(request, 'dashboard/index.html')
     
-    
+@login_required(login_url='user-login')  
 def staff(request):
     return render(request, 'dashboard/staff.html')
 
-def product(request):
-    return render(request, 'dashboard/products.html')
+@login_required(login_url='user-login')
+# def product(request):
+#     return render(request, 'dashboard/products.html')
 
+def product(request):
+    items = Product.objects.all()
+    context = {
+        'items': items,
+    }
+    return render(request, 'dashboard/products.html', context)
+
+@login_required(login_url='user-login')
 def order(request):
     return render(request, 'dashboard/order.html')
     
