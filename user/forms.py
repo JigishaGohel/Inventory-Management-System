@@ -11,16 +11,15 @@ class CreateUserForm(UserCreationForm):
     class Meta:
         model = User
         fields = ['username', 'email','password1', 'password2']
-
-
+        
 class UserUpdateForm(forms.ModelForm):
     
     class Meta:
         model = User
-        field = ['username', 'email']
+        fields = ['username', 'email']
         
 class ProfileUpdateForm(forms.ModelForm):
     class Meta:
         model = Profile
-        field = ['address', 'phone' , 'image']
+        fields = ['address', 'phone' , 'image']
         
