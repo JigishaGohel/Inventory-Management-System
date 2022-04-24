@@ -3,20 +3,56 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from .models import Product, Order
-from .forms import ProductForm
+from .forms import ProductForm, OrderForm
 from django.contrib.auth.models import User
+from django.contrib import messages 
 
 # Create your views here.
 
 @login_required(login_url='user-login')
 def index(request):
-    return render(request, 'dashboard/index.html')
+    orders = Order.objects.all()
+    products = Product.objects.all()
+    
+    # for tov nav counter
+    workers_count = User.objects.all().count()
+    product_count = Product.objects.all().count()
+    order_count = Order.objects.all().count()
+    
+    if request.method == 'POST':
+        form = OrderForm(request.POST)
+        
+        if form.is_valid():
+            instance = form.save(commit=False)
+            instance.staff = request.user
+            instance.save()
+            return redirect('dashboard-index') 
+        
+    else:
+        form = OrderForm()
+    
+    context = {
+        'orders' : orders,
+        'form' : form,
+        'products' : products,
+        'workers_count' : workers_count,
+        'product_count' : product_count,
+        'order_count' :order_count,
+    }
+    
+    return render(request, 'dashboard/index.html', context)
     
 @login_required(login_url='user-login')  
 def staff(request):
     workers = User.objects.all()
+    workers_count = workers.count()
+    product_count = Product.objects.all().count()
+    order_count = Order.objects.all().count()
     context = {
-        'workers' : workers
+        'workers' : workers,
+        'workers_count' : workers_count,
+        'product_count' : product_count,
+        'order_count' :order_count,
     }
     return render(request, 'dashboard/staff.html', context)
 
@@ -32,13 +68,18 @@ def staff_detail(request, pk):
 @login_required(login_url='user-login')
 def product(request):
     items = Product.objects.all() #Using ORM
+    product_count = items.count()
     # items = Product.objects.raw('SELECT * FROM dashboard_product') 
+    workers_count = User.objects.all().count()
+    order_count = Order.objects.all().count()
     
     if request.method == 'POST':
         form = ProductForm(request.POST)
         
         if form.is_valid():
             form.save()
+            product_name = form.cleaned_data.get('name')
+            messages.success(request, f'{product_name} has been added.')
             return redirect('dashboard-products')
         
     else:
@@ -47,6 +88,9 @@ def product(request):
     context = {
         'items': items,
         'form' : form,
+        'workers_count' : workers_count,
+        'product_count' : product_count,
+        'order_count' :order_count,
     }
     return render(request, 'dashboard/products.html', context)
 
@@ -81,9 +125,15 @@ def product_update(request, pk):
 @login_required(login_url='user-login')
 def order(request):
     orders = Order.objects.all()
+    workers_count = User.objects.all().count()
+    product_count = Product.objects.all().count()
+    order_count = orders.count()
     
     context = {
         'orders' : orders,
+        'workers_count' : workers_count,
+        'product_count' : product_count,
+        'order_count' :order_count,
     }
     return render(request, 'dashboard/order.html', context)
     

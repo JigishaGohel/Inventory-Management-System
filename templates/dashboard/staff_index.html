@@ -1,3 +1,4 @@
+{% load crispy_forms_tags %}
 <div class="container">
     <div class="row mt-4">
         <div class="col-md-4">
@@ -7,7 +8,8 @@
                 </div>
                 <div class="card-body">
                     <form method="POST">
-                        
+                        {% csrf_token %}
+                        {{ form|crispy}}
                         <input class="btn btn-info btn-block" type="submit" value="Make Request">
                     </form>
                 </div>
@@ -25,31 +27,20 @@
                                 <th scope="col">Product</th>
                                 <th scope="col">Category</th>
                                 <th scope="col">Quantity</th>
+                                <th scope="col">Date</th>
                             </tr>
                         </thead>
                         <tbody>
-                            
+                            {% for o in orders %}
+                            {% if o.staff == user %}
                             <tr>
-                                <td>Book</td>
-                                <td>Stationary</td>
-                                <td>10</td>
+                                <td>{{o.product.name}}</td>
+                                <td>{{o.product.category}}</td>
+                                <td>{{o.order_quantity}}</td>
+                                <td>{{o.date}}</td>
                             </tr>
-							<tr>
-                                <td>Book</td>
-                                <td>Stationary</td>
-                                <td>10</td>
-                            </tr>
-							<tr>
-                                <td>Book</td>
-                                <td>Stationary</td>
-                                <td>10</td>
-                            </tr>
-							<tr>
-                                <td>Book</td>
-                                <td>Stationary</td>
-                                <td>10</td>
-                            </tr>
-                            
+                            {% endif %}
+                            {% endfor %}
                         </tbody>
                     </table>
                 </div>
